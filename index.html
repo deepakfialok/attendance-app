@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="header">
+        <button onclick="loadHomePage()">Back to Home</button>
+        <input
+          type="date"
+          id="date-picker"
+          value="${new Date().toISOString().split('T')[0]}"
+        />
+        <button onclick="clearLocalStorage()">Clear Local Storage</button>
+      </div>
+      <h1>Attendance System</h1>
+      <div id="content"></div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
