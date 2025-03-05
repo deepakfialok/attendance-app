@@ -1,13 +1,13 @@
 {
   "teachers": {
     "T001": {
-      "teacherName": "Teacher 1",
+      "teacherName": "Aman Tiwari",
       "profileImage": "https://randomuser.me/api/portraits/men/1.jpg",
       "classes": ["C001", "C002"],
       "gender": "male"
     },
     "T002": {
-      "teacherName": "Teacher 2",
+      "teacherName": "Rahul Sharma",
       "profileImage": "https://randomuser.me/api/portraits/men/2.jpg",
       "classes": ["C002", "C003"],
       "gender": "male"
@@ -15,35 +15,41 @@
   },
   "students": {
     "S001": {
-      "name": "Student 1",
-      "gender": "male"
-    },
-    "S002": {
-      "name": "Student 2",
+      "name": "Ankita Sharma",
       "gender": "female"
     },
+    "S002": {
+      "name": "Rajesh Kumar",
+      "gender": "male"
+    },
     "S003": {
-      "name": "Student 3",
+      "name": "Amit Kumar",
       "gender": "male"
     },
     "S004": {
-      "name": "Student 4",
+      "name": "Sanjana Sharma",
       "gender": "female"
     },
     "S005": {
-      "name": "Student 5",
+      "name": "Rakesh Kumar",
       "gender": "male"
     }
   },
   "classes": {
     "C001": {
-      "className": "Physics",
+      "className": "React JS",
       "timings": ["9:00 AM", "11:00 AM"],
       "days": ["Monday", "Wednesday", "Friday"],
       "students": ["S001", "S002", "S003", "S004", "S005"]
     },
     "C002": {
-      "className": "Chemistry",
+      "className": "Node JS",
+      "timings": ["10:00 AM", "12:00 PM"],
+      "days": ["Monday", "Wednesday", "Friday"],
+      "students": ["S001", "S002", "S003", "S004"]
+    },
+    "C003": {
+      "className": "Angular JS",
       "timings": ["10:00 AM", "12:00 PM"],
       "days": ["Monday", "Wednesday", "Friday"],
       "students": ["S001", "S002", "S003", "S004"]
