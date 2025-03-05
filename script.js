@@ -37,19 +37,21 @@ function loadStudentMode() {
 function loadStudentAttendance(classId) {
   const classData = data.classes[classId];
   const studentsHtml = classData.students
-    .map(
-      (studentId) => `
-    <div class="card student-card">
-      <img src="https://randomuser.me/api/portraits/${
-        Math.random() > 0.5 ? "men" : "women"
-      }/${Math.floor(Math.random() * 100)}.jpg" alt="${
-        data.students[studentId].name
-      }">
-      <h3>${data.students[studentId].name}</h3>
-      <button onclick="markAttendance('${classId}', '${studentId}')">Mark Present</button>
-    </div>
-  `
-    )
+    .map((studentId) => {
+      const student = data.students[studentId];
+      const imageNumber = hashString(studentId); // Generate a unique number for the student
+      const imageUrl = `https://randomuser.me/api/portraits/${
+        student.gender === "male" ? "men" : "women"
+      }/${imageNumber}.jpg`;
+      return `
+      <div class="card student-card">
+        <img src="${imageUrl}" alt="${student.name}">
+        <h3>${student.name}</h3>
+        <p>ID: ${studentId}</p>
+        <button onclick="markAttendance('${classId}', '${studentId}')">Mark Present</button>
+      </div>
+    `;
+    })
     .join("");
   document.getElementById(
     "content"
@@ -57,9 +59,47 @@ function loadStudentAttendance(classId) {
 }
 
 function markAttendance(classId, studentId) {
+  const datePicker = document.getElementById("date-picker");
+  const date = datePicker ? datePicker.value : null;
+
+  // Check if date is selected
+  if (!date) {
+    alert("Please select a date before marking attendance.");
+    return;
+  }
+
+  const masterAttendance = getMasterAttendance();
+  const attendanceKey = `${classId}-${studentId}-${date}-${data.classes[classId].timings[0]}`; // Use the first timing for simplicity
+
+  // Check if attendance is already marked
+  if (masterAttendance[attendanceKey]) {
+    alert(
+      `Attendance for ${data.students[studentId].name} on ${date} has already been marked.`
+    );
+    return;
+  }
+
   if (confirm(`Mark ${data.students[studentId].name} as present?`)) {
-    alert(`${data.students[studentId].name} marked present`);
-    // Save to local storage or update data.attendance
+    const attendanceRecord = {
+      classID: classId,
+      className: data.classes[classId].className,
+      date: date,
+      time: data.classes[classId].timings[0], // Use the first timing for simplicity
+      teacherID: Object.keys(data.teachers).find((teacherId) =>
+        data.teachers[teacherId].classes.includes(classId)
+      ),
+      studentID: studentId,
+      studentName: data.students[studentId].name,
+      status: "Present",
+    };
+
+    // Add the record to the master attendance object
+    masterAttendance[attendanceKey] = attendanceRecord;
+    saveMasterAttendance(masterAttendance);
+
+    alert(
+      `${data.students[studentId].name} marked present for ${data.classes[classId].className} on ${date}.`
+    );
   }
 }
 
@@ -285,8 +325,11 @@ function loadStudentWiseAttendance() {
 }
 
 function clearLocalStorage() {
-  localStorage.removeItem("attendanceMaster");
-  alert("Local storage cleared.");
+  // Clear all keys in localStorage
+  localStorage.clear();
+  alert("Local storage has been cleared. The page will now reload.");
+  // Reload the page to reset the application state
+  location.reload();
 }
 
 function loadAttendanceStatus() {
@@ -380,7 +423,9 @@ function showAttendanceStatus(classId, date, teacherId, timing) {
         absentStudents.push({ ...student, id: studentId, imageUrl });
       }
     } else {
-      absentStudents.push({ ...student, id: studentId, imageUrl });
+      // Only include students with no attendance record if explicitly marked as absent
+      // If you want to show all students with no record as absent, uncomment the next line
+      // absentStudents.push({ ...student, id: studentId, imageUrl });
     }
   });
 
@@ -388,41 +433,41 @@ function showAttendanceStatus(classId, date, teacherId, timing) {
   const presentHtml = presentStudents
     .map(
       (student) => `
-      <div class="student-status-card present">
-        <img src="${student.imageUrl}" alt="${student.name}">
-        <h3>${student.name}</h3>
-        <p>ID: ${student.id}</p>
-      </div>
-    `
+    <div class="student-status-card present">
+      <img src="${student.imageUrl}" alt="${student.name}">
+      <h3>${student.name}</h3>
+      <p>ID: ${student.id}</p>
+    </div>
+  `
     )
     .join("");
 
   const absentHtml = absentStudents
     .map(
       (student) => `
-      <div class="student-status-card absent">
-        <img src="${student.imageUrl}" alt="${student.name}">
-        <h3>${student.name}</h3>
-        <p>ID: ${student.id}</p>
-      </div>
-    `
+    <div class="student-status-card absent">
+      <img src="${student.imageUrl}" alt="${student.name}">
+      <h3>${student.name}</h3>
+      <p>ID: ${student.id}</p>
+    </div>
+  `
     )
     .join("");
 
   // Display the results
   document.getElementById("content").innerHTML = `
-      <h2>Attendance Status for ${classData.className} on ${date} at ${timing}</h2>
-      <div class="attendance-status-container">
-        <div class="present-list">
-          <h3>Present Students</h3>
-          ${presentHtml}
-        </div>
-        <div class="absent-list">
-          <h3>Absent Students</h3>
-          ${absentHtml}
-        </div>
+    <h2>Attendance Status for ${classData.className} on ${date} at ${timing}</h2>
+    <div class="attendance-status-container">
+      <div class="present-list">
+        <h3>Present Students</h3>
+        ${presentHtml}
       </div>
-    `;
+      <div class="absent-list">
+        <h3>Absent Students</h3>
+        ${absentHtml}
+      </div>
+    </div>
+  `;
 }
 
 // Simple hashing function to generate a unique number for each ID
